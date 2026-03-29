@@ -96,7 +96,7 @@ Monitoring Stack:
 ## 📸 Screenshots
 
 ### N8N Health Monitoring Workflow
-<img width="1383" height="653" alt="n8n health monitor" src="https://github.com/user-attachments/assets/2745399d-0681-4db5-a802-d90c926135d7" />
+<img width="1673" height="870" alt="n8n health monitor" src="https://github.com/user-attachments/assets/b8e942e0-61ae-40f3-98d7-3e7b22ce90df" />
 
 *Parallel health checks with intelligent failure detection and Discord alerting*
 
@@ -122,7 +122,6 @@ Monitoring Stack:
 
 ### Nginxy Proxy Manager Dashboard
 <img width="1676" height="955" alt="Cerberus (Nginx proxy manager)" src="https://github.com/user-attachments/assets/e7e893b2-8da9-4b5e-9c24-4a83206852b2" />
-*Reverse Proxy with SSL/TLS*
 
 
 ## ✨ Features
