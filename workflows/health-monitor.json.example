@@ -1,0 +1,74 @@
+﻿{
+  "name": "Olympus Health Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{"field": "minutes", "minutesInterval": 5}]
+        }
+      },
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 400]
+    },
+    {
+      "parameters": {
+        "method": "HEAD",
+        "url": "http://{{PIHOLE_IP}}/admin/",
+        "options": {
+          "response": {
+            "response": {"fullResponse": true, "neverError": true}
+          },
+          "timeout": 5000
+        }
+      },
+      "name": "Check Athena",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "HEAD",
+        "url": "http://{{PORTAINER_HOST}}:9000/",
+        "options": {
+          "response": {
+            "response": {"fullResponse": true, "neverError": true}
+          },
+          "timeout": 5000
+        }
+      },
+      "name": "Check Hephaestus",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 400]
+    },
+    {
+      "parameters": {
+        "method": "HEAD",
+        "url": "https://{{PROXMOX_HOST}}:8006/",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {"fullResponse": true, "neverError": true}
+          },
+          "timeout": 5000
+        }
+      },
+      "name": "Check Olympus",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 500]
+    }
+  ],
+  "connections": {
+    "Every 5 Minutes": {
+      "main": [[
+        {"node": "Check Athena", "type": "main", "index": 0},
+        {"node": "Check Hephaestus", "type": "main", "index": 0},
+        {"node": "Check Olympus", "type": "main", "index": 0}
+      ]]
+    }
+  }
+}

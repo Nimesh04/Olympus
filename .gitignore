@@ -1,0 +1,21 @@
+﻿# Sensitive files - NEVER commit these
+.env
+*.env
+*credentials*.json
+*webhook*
+*.key
+*.pem
+*-private.*
+backup/
+secrets/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
