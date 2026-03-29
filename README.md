@@ -16,38 +16,81 @@ Project Olympus is a production-grade homelab infrastructure running on Proxmox 
 
 ## 🏗️ Architecture
 ```
-┌─────────────────────────────────────────────┐
-│        Proxmox VE (olympus.lab)            │
-├─────────────────────────────────────────────┤
-│                                             │
-│  ┌──────────────┐  ┌──────────────┐       │
-│  │   Athena     │  │  Hephaestus  │       │
-│  │   Pi-hole    │  │  Portainer   │       │
-│  │  10.0.0.100  │  │  10.0.0.101  │       │
-│  └──────────────┘  └──────────────┘       │
-│                                             │
-│  ┌──────────────┐                          │
-│  │   Hermes     │  ← N8N Health Monitor   │
-│  │     N8N      │     Every 5 minutes      │
-│  │  10.0.0.102  │     Discord alerts       │
-│  └──────────────┘                          │
-│                                             │
-│  ┌──────────────────────────────────┐     │
-│  │      Twingate Connector          │     │
-│  │   Zero-trust remote access       │     │
-│  └──────────────────────────────────┘     │
-└─────────────────────────────────────────────┘
+┌─────────────────────────────────────┐
+                    │      PROXMOX VE (10.0.0.200)       │
+                    │    ThinkPad X1 Carbon Gen 5        │
+                    └──────────────┬──────────────────────┘
+                                   │
+                    ┌──────────────┼──────────────┐
+                    │              │              │
+        ┌───────────▼────┐  ┌──────▼──────┐  ┌──▼──────────┐
+        │   Internet     │  │   Clients   │  │   Remote    │
+        │   (WAN)        │  │  (LAN)      │  │  (Twingate) │
+        └───────┬────────┘  └──────┬──────┘  └──────┬──────┘
+                │                  │                 │
+                │                  └────────┬────────┘
+                │                           │
+                │                  ┌────────▼────────┐
+                │                  │  DNS: 10.0.0.100│
+                │                  └────────┬────────┘
+                │                           │
+                │              All *.olympus.lab queries
+                │              resolve to 10.0.0.104
+                │                           │
+        ┌───────▼───────────────────────────▼──────────────────────┐
+        │                                                            │
+        │  ┌──────────────┐          ┌───────────────┐             │
+        │  │   ATHENA     │          │   CERBERUS    │             │
+        │  │  (LXC 100)   │◄─────────┤   (LXC 104)   │             │
+        │  │  10.0.0.100  │  Proxies │   10.0.0.104  │             │
+        │  │              │   :80    │               │             │
+        │  │  Pi-hole DNS │          │  NPM Proxy    │             │
+        │  │  Ad Blocking │          │  :80 :443 :81 │             │
+        │  └──────────────┘          └───────┬───────┘             │
+        │         ▲                           │                     │
+        │         │                           │                     │
+        │         │                  ┌────────┼────────┐            │
+        │         │                  │        │        │            │
+        │  ┌──────┴──────┐   ┌───────▼───┐ ┌─▼──────┐ ┌──────────┐│
+        │  │ HEPHAESTUS  │   │  HERMES   │ │ ARGUS  │ │ (Athena) ││
+        │  │  (LXC 101)  │   │ (LXC 102) │ │(LXC103)│ └──────────┘│
+        │  │  10.0.0.101 │   │10.0.0.102 │ │10.0.0. │             │
+        │  │             │   │           │ │  103   │             │
+        │  │  Portainer  │   │    N8N    │ │ Uptime │             │
+        │  │  Twingate   │   │ Workflows │ │  Kuma  │             │
+        │  │  Chisel     │   │   :5678   │ │ :3001  │             │
+        │  │  :9000      │   └─────┬─────┘ └────▲───┘             │
+        │  └─────────────┘         │            │                  │
+        │         ▲                │            │                  │
+        │         └────────────────┴────────────┘                  │
+        │          Manages all     Health checks every 5 min       │
+        │          containers                                      │
+        │                                                           │
+        └───────────────────────────────────────────────────────────┘
+
+LEGEND:
+─────►  Network flow / Connection
+◄─────  Reverse proxy routing
+Clients query DNS (Athena) → DNS returns Cerberus IP → 
+Cerberus proxies to backend services
+
+Monitoring Stack:
+├─ N8N: Real-time alerts (Every 5 min → Discord)
+└─ Uptime Kuma: Visual dashboard (Uptime %, graphs)
 ```
 
 ## 🛡️ Services
 
-| Service | Container | Purpose | Port |
-|---------|-----------|---------|------|
-| **Athena** | LXC 100 | Pi-hole DNS filtering & local DNS | 80/53 |
-| **Hephaestus** | LXC 101 | Portainer container management | 9000 |
-| **Hermes** | LXC 102 | N8N workflow automation & monitoring | 5678 |
-| **Olympus** | Host | Proxmox VE hypervisor | 8006 |
-| **Twingate** | Docker | Zero-trust network access | - |
+## Infrastructure Overview
+
+| Service | Container | IP | Ports | Purpose | URL |
+|---------|-----------|-----|-------|---------|-----|
+| **Athena** | LXC 100 | 10.0.0.100 | 80, 53 | Pi-hole DNS & Ad Blocking | https://athena.olympus.lab/admin/ |
+| **Hephaestus** | LXC 101 | 10.0.0.101 | 9000 | Portainer Container Management | http://10.0.0.101:9000/ |
+| **Hermes** | LXC 102 | 10.0.0.102 | 5678 | N8N Workflow Automation | https://hermes.olympus.lab/ |
+| **Argus** | LXC 103 | 10.0.0.103 | 3001 | Uptime Kuma Monitoring | https://argus.olympus.lab/ |
+| **Cerberus** | LXC 104 | 10.0.0.104 | 80, 443, 81 | Nginx Proxy Manager | http://cerberus.olympus.lab:81 |
+| **Olympus** | Proxmox Host | 10.0.0.200 | 8006 | Proxmox VE Hypervisor | https://10.0.0.200:8006 |
 
 
 ## 📸 Screenshots
@@ -72,6 +115,10 @@ Project Olympus is a production-grade homelab infrastructure running on Proxmox 
 
 *Docker container orchestration and monitoring*
 
+### Uptime Kuma Dashboard
+
+*Visual monitoring dashboard with uptime percentages and response time graphs*
+
 ## ✨ Features
 
 ### Automated Health Monitoring
@@ -90,6 +137,33 @@ Project Olympus is a production-grade homelab infrastructure running on Proxmox 
 - **Local DNS namespace** (olympus.lab)
 - **Network-wide ad blocking** via Pi-hole
 - **Local service discovery** with human-readable names
+
+### HTTPS & SSL/TLS
+- **Encrypted connections**: All services use HTTPS
+- **Wildcard certificate**: Single cert covers all *.olympus.lab domains
+- **Self-signed PKI**: Internal certificate authority for homelab
+- **Force SSL**: Automatic HTTP → HTTPS redirect
+- **Valid for 1 year**: Certificate expires March 29, 2027
+
+### Reverse Proxy & Clean URLs (Cerberus)
+- **No port numbers**: Services accessible via clean URLs
+- **Centralized routing**: All HTTP/HTTPS traffic through Cerberus (10.0.0.104)
+- **SSL termination**: HTTPS handled at proxy layer
+- **DNS integration**: Pi-hole routes all *.olympus.lab to proxy
+
+### Automated Monitoring (Hermes + Argus)
+- **5 services monitored**: All infrastructure tracked
+- **HTTPS health checks**: Monitors encrypted endpoints
+- **SSL-aware**: Ignores self-signed certificate warnings
+- **Visual dashboard**: Real-time status in Uptime Kuma
+- **99%+ uptime**: Continuous monitoring ensures availability
+
+### Network Architecture
+- **Internal DNS**: Pi-hole provides local domain resolution (*.olympus.lab)
+- **Remote access**: Twingate zero-trust network access
+- **Containerized**: All services run in isolated LXC containers
+- **Proxmox backend**: Enterprise-grade virtualization platform
+
 
 ## 📚 Documentation
 
@@ -128,6 +202,7 @@ All sensitive data has been replaced with placeholders:
 - Debian 12 (LXC containers)
 - Docker 29.3.1
 - N8N (latest)
+
 
 ## 📖 Lessons Learned
 

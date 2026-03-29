@@ -145,14 +145,86 @@ For critical service discovery in containers, `/etc/hosts` entries (via `--add-h
 
 ---
 
-## Time Investment
+## Reverse Proxy Configuration
 
-- Initial deployment: 2 hours
-- DNS troubleshooting: 2 hours
-- Workflow logic fixes: 1 hour
-- Error handling refinement: 1 hour
-- Documentation: 1 hour
+### Problem
+Hephaestus proxy host showed in NPM UI but didn't work when accessing via browser.
 
-**Total:** ~7 hours for production-ready monitoring infrastructure
+### Investigation
+- All services reachable directly (IP:port worked fine)
+- DNS correctly resolved to Cerberus IP
+- 3 out of 4 services worked through proxy
+- Hephaestus returned ERR_EMPTY_RESPONSE
 
-**Value:** Portfolio-ready project, 7+ resume bullets, interview talking points
+### Root Cause
+NPM database saved proxy host entry but failed to generate Nginx config file. Config file 2.conf and later 5.conf never created on disk, so Nginx couldn't route the traffic.
+
+### Solution
+Accepted 75% success rate and used direct IP access for Hephaestus. Config regeneration bug appeared twice - not worth more troubleshooting time.
+
+### Takeaway
+Sometimes "good enough" is the right answer. Portainer accessible via direct URL is fine for rarely-used admin tool.
+
+---
+
+## SSL Certificate Implementation
+
+### Problem
+Services needed HTTPS but buying certificates for internal homelab is wasteful.
+
+### Investigation
+- Let's Encrypt requires public domain and DNS validation
+- Internal services don't need trusted CA validation
+- Self-signed certs work perfectly for encrypted traffic
+
+### Root Cause
+Not a problem - just needed proper certificate solution for internal use.
+
+### Solution
+Generated wildcard self-signed certificate covering *.olympus.lab domain. Imported into NPM and applied to all 3 working proxy hosts. Enabled Force SSL for automatic HTTP to HTTPS redirect.
+
+### Takeaway
+Self-signed certificates provide real encryption for homelab environments. Browser warnings are expected and easily bypassed for internal services.
+
+---
+
+## Monitoring SSL Endpoints
+
+### Problem
+After enabling HTTPS, both N8N workflow and Uptime Kuma failed with SSL certificate errors.
+
+### Investigation
+- Services worked fine in browser (after accepting cert)
+- Monitoring tools rejected self-signed certificates by default
+- Need to tell tools to trust our internal certificates
+
+### Root Cause
+Security feature - monitoring tools don't trust unknown certificate authorities by default.
+
+### Solution
+**Uptime Kuma:** Enabled "Ignore TLS/SSL error" checkbox in monitor settings.
+**N8N:** Enabled SSL ignore option in HTTP Request node settings.
+
+### Takeaway
+When monitoring HTTPS services with self-signed certs, explicitly configure tools to ignore certificate validation. Security trade-off acceptable for internal monitoring.
+
+---
+
+## Docker Bridge Network Limitations
+
+### Problem
+NPM container could reach some LXC containers but behavior was inconsistent.
+
+### Investigation
+- NPM in default Docker bridge network (172.17.0.x)
+- LXC containers on Proxmox network (10.0.0.x)
+- Bridge mode worked for 3 services but not Hephaestus
+
+### Root Cause
+Docker bridge networking can have routing issues reaching external container IPs. Host networking mode would provide direct network access.
+
+### Solution
+Didn't fix - accepted working state. Could redeploy NPM with --network host for full LXC connectivity.
+
+### Takeaway
+Docker bridge vs host networking matters for inter-container communication. Host mode more reliable for proxying to external services.
