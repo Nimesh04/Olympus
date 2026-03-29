@@ -49,6 +49,29 @@ Project Olympus is a production-grade homelab infrastructure running on Proxmox 
 | **Olympus** | Host | Proxmox VE hypervisor | 8006 |
 | **Twingate** | Docker | Zero-trust network access | - |
 
+
+## 📸 Screenshots
+
+### N8N Health Monitoring Workflow
+<img width="1383" height="653" alt="n8n health monitor" src="https://github.com/user-attachments/assets/2745399d-0681-4db5-a802-d90c926135d7" />
+
+*Parallel health checks with intelligent failure detection and Discord alerting*
+
+### Discord Alert Example
+<img width="1411" height="582" alt="Alert message in discord" src="https://github.com/user-attachments/assets/d132001d-7fcc-4b18-b237-d82fb44709f0" />
+
+*Real-time notifications with service name and error details*
+
+### Pi-hole Dashboard
+<img width="1672" height="1007" alt="Athena(pihole)" src="https://github.com/user-attachments/assets/bff01864-d54b-474e-abe6-e842acd699ed" />
+
+*Network-wide DNS filtering with custom local domain resolution*
+
+### Portainer Container Management
+<img width="1672" height="996" alt="Hephaestus(portainer)" src="https://github.com/user-attachments/assets/5ed931c7-9386-4b97-a1ef-c3b705ba9bce" />
+
+*Docker container orchestration and monitoring*
+
 ## ✨ Features
 
 ### Automated Health Monitoring
@@ -92,18 +115,6 @@ All sensitive data has been replaced with placeholders:
 - Discord webhooks → Create your own webhook
 - Credentials → Never commit real credentials
 
-## 🎓 Skills Demonstrated
-
-- Proxmox VE virtualization
-- LXC container deployment
-- Docker containerization
-- DNS configuration (Pi-hole)
-- Workflow automation (N8N)
-- Network architecture design
-- Zero-trust security implementation
-- Infrastructure monitoring & alerting
-- Systematic troubleshooting
-
 ## 📊 System Specs
 
 **Hardware:**
@@ -125,11 +136,5 @@ See [docs/lessons-learned.md](docs/lessons-learned.md) for challenges encountere
 ## 📄 License
 
 MIT License - See [LICENSE](LICENSE)
-
-## 🙏 Acknowledgments
-
-Built as part of AZ-800 certification preparation and homelab portfolio development.
-
----
 
 **Note:** This is a living project. Documentation and configurations are continuously updated.
