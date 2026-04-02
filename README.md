@@ -13,7 +13,7 @@ Project Olympus is a production-grade homelab infrastructure running on Proxmox 
 - **Zero-trust remote access** via Twingate (no port forwarding)
 - **Custom DNS namespace** (olympus.lab) via Pi-hole
 - **Containerized services** using LXC and Docker
-- **Cloud storage using Nextcloud**
+- **Cloud storage** using Nextcloud
 
 ## 🏗️ Architecture
 ```
@@ -103,31 +103,31 @@ Monitoring Stack:
 
 ### N8N Health Monitoring Workflow
 <img width="1531" height="811" alt="Hermes (6 services monitoring)" src="https://github.com/user-attachments/assets/6d2e4588-9a97-4fae-8d2c-ac17cd8b932d" />
-*Parallel health checks with intelligent failure detection and Discord alerting*
+Parallel health checks with intelligent failure detection and Discord alerting
 
 ### Discord Alert Example
 <img width="1411" height="582" alt="Alert message in discord" src="https://github.com/user-attachments/assets/d132001d-7fcc-4b18-b237-d82fb44709f0" />
-*Real-time notifications with service name and error details*
+Real-time notifications with service name and error details
 
 ### Pi-hole Dashboard
 <img width="1672" height="1007" alt="Athena(pihole)" src="https://github.com/user-attachments/assets/bff01864-d54b-474e-abe6-e842acd699ed" />
-*Network-wide DNS filtering with custom local domain resolution*
+Network-wide DNS filtering with custom local domain resolution
 
 ### Portainer Container Management
 <img width="1672" height="996" alt="Hephaestus(portainer)" src="https://github.com/user-attachments/assets/5ed931c7-9386-4b97-a1ef-c3b705ba9bce" />
-*Docker container orchestration and monitoring*
+Docker container orchestration and monitoring
 
 ### Uptime Kuma Dashboard
 <img width="1671" height="872" alt="Argus (Uptime Kuma)" src="https://github.com/user-attachments/assets/ea876a72-535c-4f1b-b24b-a4e89f4cba64" />
-*Visual monitoring dashboard with uptime percentages and response time graphs*
+Visual monitoring dashboard with uptime percentages and response time graphs
 
 ### Nginxy Proxy Manager Dashboard
 <img width="1667" height="960" alt="Cerberus (Nginx proxy manager)" src="https://github.com/user-attachments/assets/5a7b079d-af9e-4712-9371-3e04e6c6607d" />
-*Reverse proxy maanger*
+Reverse proxy maanger
 
 ### NextCloud Dashboard
 <img width="1675" height="928" alt="Artemis (Nextcloud)" src="https://github.com/user-attachments/assets/44486203-43f2-4263-b023-e58bf23b81da" />
-*Cloud Storage dashboard*
+Cloud Storage dashboard
 
 
 ## ✨ Features
