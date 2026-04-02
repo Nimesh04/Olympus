@@ -13,70 +13,75 @@ Project Olympus is a production-grade homelab infrastructure running on Proxmox 
 - **Zero-trust remote access** via Twingate (no port forwarding)
 - **Custom DNS namespace** (olympus.lab) via Pi-hole
 - **Containerized services** using LXC and Docker
+- **Cloud storage using Nextcloud**
 
 ## 🏗️ Architecture
 ```
-                    ┌─────────────────────────────────────┐
-                    │      PROXMOX VE (10.0.0.200)        │
-                    │    ThinkPad X1 Carbon Gen 5         │
-                    └──────────────┬──────────────────────┘
-                                   │
-                    ┌──────────────┼──────────────┐
-                    │              │              │
-        ┌───────────▼────┐  ┌──────▼──────┐  ┌──▼──────────┐
-        │   Internet     │  │   Clients   │  │   Remote    │
-        │   (WAN)        │  │  (LAN)      │  │  (Twingate) │
-        └───────┬────────┘  └──────┬──────┘  └──────┬──────┘
-                │                  │                 │
-                │                  └────────┬────────┘
-                │                           │
-                │                  ┌────────▼────────┐
-                │                  │  DNS: 10.0.0.100│
-                │                  └────────┬────────┘
-                │                           │
-                │              All *.olympus.lab queries
-                │              resolve to 10.0.0.104
-                │                           │
-        ┌───────▼───────────────────────────▼──────────────────────┐
-        │                                                          │
-        │  ┌──────────────┐          ┌───────────────┐             │
-        │  │   ATHENA     │          │   CERBERUS    │             │
-        │  │  (LXC 100)   │◄─────────┤   (LXC 104)   │             │
-        │  │  10.0.0.100  │  Proxies │   10.0.0.104  │             │
-        │  │              │   :80    │               │             │
-        │  │  Pi-hole DNS │          │  NPM Proxy    │             │
-        │  │  Ad Blocking │          │  :80 :443 :81 │             │
-        │  └──────────────┘          └───────┬───────┘             │
-        │         ▲                           │                    │
-        │         │                           │                    │
-        │         │                  ┌────────┼────────┐           │
-        │         │                  │        │        │           │
-        │  ┌──────┴──────┐   ┌───────▼───┐ ┌─▼──────┐ ┌──────────┐ │
-        │  │ HEPHAESTUS  │   │  HERMES   │ │ ARGUS  │ │ (Athena) │ │
-        │  │  (LXC 101)  │   │ (LXC 102) │ │(LXC103)│ └──────────┘ │
-        │  │  10.0.0.101 │   │10.0.0.102 │ │10.0.0. │              │
-        │  │             │   │           │ │  103   │              │
-        │  │  Portainer  │   │    N8N    │ │ Uptime │              │
-        │  │  Twingate   │   │ Workflows │ │  Kuma  │              │
-        │  │  Chisel     │   │   :5678   │ │ :3001  │              │
-        │  │  :9000      │   └─────┬─────┘ └────▲───┘              │
-        │  └─────────────┘         │            │                  │
-        │         ▲                │            │                  │
-        │         └────────────────┴────────────┘                  │
-        │          Manages all     Health checks every 5 min       │
-        │          containers                                      │
-        │                                                          │
-        └──────────────────────────────────────────────────────────┘
-
+                ┌─────────────────────────────────────┐
+                │      PROXMOX VE (10.0.0.200)        │
+                │    ThinkPad X1 Carbon Gen 5         │
+                └──────────────┬──────────────────────┘
+                               │
+                ┌──────────────┼──────────────┐
+                │              │              │
+    ┌───────────▼────┐  ┌──────▼──────┐  ┌──▼──────────┐
+    │   Internet     │  │   Clients   │  │   Remote    │
+    │   (WAN)        │  │  (LAN)      │  │  (Twingate) │
+    └───────┬────────┘  └──────┬──────┘  └──────┬──────┘
+            │                  │                 │
+            │                  └────────┬────────┘
+            │                           │
+            │                  ┌────────▼────────┐
+            │                  │  DNS: 10.0.0.100│
+            │                  └────────┬────────┘
+            │                           │
+            │              All *.olympus.lab queries
+            │              resolve to 10.0.0.104
+            │                           │
+    ┌───────▼───────────────────────────▼──────────────────────┐
+    │                                                          │
+    │  ┌──────────────┐          ┌───────────────┐             │
+    │  │   ATHENA     │          │   CERBERUS    │             │
+    │  │  (LXC 100)   │◄─────────┤   (LXC 104)   │             │
+    │  │  10.0.0.100  │  Proxies │   10.0.0.104  │             │
+    │  │              │   :80    │               │             │
+    │  │  Pi-hole DNS │          │  NPM Proxy    │             │
+    │  │  Ad Blocking │          │  SSL/TLS      │             │
+    │  └──────────────┘          └───────┬───────┘             │
+    │         ▲                           │                    │
+    │         │                           │                    │
+    │         │                  ┌────────┼─────────────┐      │
+    │         │                  │        │        │    │      │
+    │  ┌──────┴──────┐   ┌───────▼───┐ ┌─▼──────┐ ┌───▼────┐   │
+    │  │ HEPHAESTUS  │   │  HERMES   │ │ ARGUS  │ │ARTEMIS │   │
+    │  │  (LXC 101)  │   │ (LXC 102) │ │(LXC103)│ │(LXC105)│   │
+    │  │  10.0.0.101 │   │10.0.0.102 │ │10.0.0. │ │10.0.0. │   │
+    │  │             │   │           │ │  103   │ │  105   │   │
+    │  │  Portainer  │   │    N8N    │ │ Uptime │ │Nextcloud│  │
+    │  │  :9000      │   │ Workflows │ │  Kuma  │ │+ PostSQL│  │
+    │  └─────────────┘   │   :5678   │ │ :3001  │ │ :8080  │   │
+    │         ▲          └─────┬─────┘ └────▲───┘ └────────┘   │
+    │         │                │            │                  │
+    │         └────────────────┴────────────┘                  │
+    │          Manages all     Health checks every 5 min       │
+    │          containers      (6 services monitored)          │
+    │                                                          │
+    └──────────────────────────────────────────────────────────┘
 LEGEND:
 ─────►  Network flow / Connection
 ◄─────  Reverse proxy routing
-Clients query DNS (Athena) → DNS returns Cerberus IP → 
-Cerberus proxies to backend services
-
+Clients query DNS (Athena) → DNS returns Cerberus IP →
+Cerberus proxies to backend services with SSL termination
+Service Stack:
+├─ DNS & Ad-blocking: Pi-hole (Athena)
+├─ Container Management: Portainer (Hephaestus)
+├─ Workflow Automation: N8N (Hermes)
+├─ Uptime Monitoring: Uptime Kuma (Argus)
+├─ Reverse Proxy & SSL: Nginx Proxy Manager (Cerberus)
+└─ File Storage: Nextcloud + PostgreSQL (Artemis)
 Monitoring Stack:
 ├─ N8N: Real-time alerts (Every 5 min → Discord)
-└─ Uptime Kuma: Visual dashboard (Uptime %, graphs)
+└─ Uptime Kuma: Visual dashboard (6 services, 99%+ uptime)
 ```
 
 ## 🛡️ Services
@@ -90,38 +95,39 @@ Monitoring Stack:
 | **Hermes** | LXC 102 | 10.0.0.102 | 5678 | N8N Workflow Automation | https://hermes.olympus.lab/ |
 | **Argus** | LXC 103 | 10.0.0.103 | 3001 | Uptime Kuma Monitoring | https://argus.olympus.lab/ |
 | **Cerberus** | LXC 104 | 10.0.0.104 | 80, 443, 81 | Nginx Proxy Manager | http://cerberus.olympus.lab:81 |
+| **Artemis** | LXC 105 | 10.0.0.105 | 8080 | Nextcloud File Storage | https://artemis.olympus.lab |
 | **Olympus** | Proxmox Host | 10.0.0.200 | 8006 | Proxmox VE Hypervisor | https://10.0.0.200:8006 |
 
 
 ## 📸 Screenshots
 
 ### N8N Health Monitoring Workflow
-<img width="1673" height="870" alt="n8n health monitor" src="https://github.com/user-attachments/assets/b8e942e0-61ae-40f3-98d7-3e7b22ce90df" />
-
+<img width="1531" height="811" alt="Hermes (6 services monitoring)" src="https://github.com/user-attachments/assets/6d2e4588-9a97-4fae-8d2c-ac17cd8b932d" />
 *Parallel health checks with intelligent failure detection and Discord alerting*
 
 ### Discord Alert Example
 <img width="1411" height="582" alt="Alert message in discord" src="https://github.com/user-attachments/assets/d132001d-7fcc-4b18-b237-d82fb44709f0" />
-
 *Real-time notifications with service name and error details*
 
 ### Pi-hole Dashboard
 <img width="1672" height="1007" alt="Athena(pihole)" src="https://github.com/user-attachments/assets/bff01864-d54b-474e-abe6-e842acd699ed" />
-
 *Network-wide DNS filtering with custom local domain resolution*
 
 ### Portainer Container Management
 <img width="1672" height="996" alt="Hephaestus(portainer)" src="https://github.com/user-attachments/assets/5ed931c7-9386-4b97-a1ef-c3b705ba9bce" />
-
 *Docker container orchestration and monitoring*
 
 ### Uptime Kuma Dashboard
-<img width="1677" height="991" alt="Argus (Uptime Kuma)" src="https://github.com/user-attachments/assets/bb98e540-f394-49a8-bd86-458314aa9f4c" />
-
+<img width="1671" height="872" alt="Argus (Uptime Kuma)" src="https://github.com/user-attachments/assets/ea876a72-535c-4f1b-b24b-a4e89f4cba64" />
 *Visual monitoring dashboard with uptime percentages and response time graphs*
 
 ### Nginxy Proxy Manager Dashboard
-<img width="1676" height="955" alt="Cerberus (Nginx proxy manager)" src="https://github.com/user-attachments/assets/e7e893b2-8da9-4b5e-9c24-4a83206852b2" />
+<img width="1667" height="960" alt="Cerberus (Nginx proxy manager)" src="https://github.com/user-attachments/assets/5a7b079d-af9e-4712-9371-3e04e6c6607d" />
+*Reverse proxy maanger*
+
+### NextCloud Dashboard
+<img width="1675" height="928" alt="Artemis (Nextcloud)" src="https://github.com/user-attachments/assets/44486203-43f2-4263-b023-e58bf23b81da" />
+*Cloud Storage dashboard*
 
 
 ## ✨ Features
@@ -157,7 +163,7 @@ Monitoring Stack:
 - **DNS integration**: Pi-hole routes all *.olympus.lab to proxy
 
 ### Automated Monitoring (Hermes + Argus)
-- **5 services monitored**: All infrastructure tracked
+- **6 services monitored**: All infrastructure tracked
 - **HTTPS health checks**: Monitors encrypted endpoints
 - **SSL-aware**: Ignores self-signed certificate warnings
 - **Visual dashboard**: Real-time status in Uptime Kuma
