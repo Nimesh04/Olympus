@@ -16,9 +16,9 @@ Project Olympus is a production-grade homelab infrastructure running on Proxmox 
 
 ## 🏗️ Architecture
 ```
-┌─────────────────────────────────────┐
-                    │      PROXMOX VE (10.0.0.200)       │
-                    │    ThinkPad X1 Carbon Gen 5        │
+                    ┌─────────────────────────────────────┐
+                    │      PROXMOX VE (10.0.0.200)        │
+                    │    ThinkPad X1 Carbon Gen 5         │
                     └──────────────┬──────────────────────┘
                                    │
                     ┌──────────────┼──────────────┐
@@ -38,7 +38,7 @@ Project Olympus is a production-grade homelab infrastructure running on Proxmox 
                 │              resolve to 10.0.0.104
                 │                           │
         ┌───────▼───────────────────────────▼──────────────────────┐
-        │                                                            │
+        │                                                          │
         │  ┌──────────────┐          ┌───────────────┐             │
         │  │   ATHENA     │          │   CERBERUS    │             │
         │  │  (LXC 100)   │◄─────────┤   (LXC 104)   │             │
@@ -47,26 +47,26 @@ Project Olympus is a production-grade homelab infrastructure running on Proxmox 
         │  │  Pi-hole DNS │          │  NPM Proxy    │             │
         │  │  Ad Blocking │          │  :80 :443 :81 │             │
         │  └──────────────┘          └───────┬───────┘             │
-        │         ▲                           │                     │
-        │         │                           │                     │
-        │         │                  ┌────────┼────────┐            │
-        │         │                  │        │        │            │
-        │  ┌──────┴──────┐   ┌───────▼───┐ ┌─▼──────┐ ┌──────────┐│
-        │  │ HEPHAESTUS  │   │  HERMES   │ │ ARGUS  │ │ (Athena) ││
-        │  │  (LXC 101)  │   │ (LXC 102) │ │(LXC103)│ └──────────┘│
-        │  │  10.0.0.101 │   │10.0.0.102 │ │10.0.0. │             │
-        │  │             │   │           │ │  103   │             │
-        │  │  Portainer  │   │    N8N    │ │ Uptime │             │
-        │  │  Twingate   │   │ Workflows │ │  Kuma  │             │
-        │  │  Chisel     │   │   :5678   │ │ :3001  │             │
-        │  │  :9000      │   └─────┬─────┘ └────▲───┘             │
+        │         ▲                           │                    │
+        │         │                           │                    │
+        │         │                  ┌────────┼────────┐           │
+        │         │                  │        │        │           │
+        │  ┌──────┴──────┐   ┌───────▼───┐ ┌─▼──────┐ ┌──────────┐ │
+        │  │ HEPHAESTUS  │   │  HERMES   │ │ ARGUS  │ │ (Athena) │ │
+        │  │  (LXC 101)  │   │ (LXC 102) │ │(LXC103)│ └──────────┘ │
+        │  │  10.0.0.101 │   │10.0.0.102 │ │10.0.0. │              │
+        │  │             │   │           │ │  103   │              │
+        │  │  Portainer  │   │    N8N    │ │ Uptime │              │
+        │  │  Twingate   │   │ Workflows │ │  Kuma  │              │
+        │  │  Chisel     │   │   :5678   │ │ :3001  │              │
+        │  │  :9000      │   └─────┬─────┘ └────▲───┘              │
         │  └─────────────┘         │            │                  │
         │         ▲                │            │                  │
         │         └────────────────┴────────────┘                  │
         │          Manages all     Health checks every 5 min       │
         │          containers                                      │
-        │                                                           │
-        └───────────────────────────────────────────────────────────┘
+        │                                                          │
+        └──────────────────────────────────────────────────────────┘
 
 LEGEND:
 ─────►  Network flow / Connection
@@ -96,7 +96,7 @@ Monitoring Stack:
 ## 📸 Screenshots
 
 ### N8N Health Monitoring Workflow
-<img width="1383" height="653" alt="n8n health monitor" src="https://github.com/user-attachments/assets/2745399d-0681-4db5-a802-d90c926135d7" />
+<img width="1673" height="870" alt="n8n health monitor" src="https://github.com/user-attachments/assets/b8e942e0-61ae-40f3-98d7-3e7b22ce90df" />
 
 *Parallel health checks with intelligent failure detection and Discord alerting*
 
@@ -116,8 +116,13 @@ Monitoring Stack:
 *Docker container orchestration and monitoring*
 
 ### Uptime Kuma Dashboard
+<img width="1677" height="991" alt="Argus (Uptime Kuma)" src="https://github.com/user-attachments/assets/bb98e540-f394-49a8-bd86-458314aa9f4c" />
 
 *Visual monitoring dashboard with uptime percentages and response time graphs*
+
+### Nginxy Proxy Manager Dashboard
+<img width="1676" height="955" alt="Cerberus (Nginx proxy manager)" src="https://github.com/user-attachments/assets/e7e893b2-8da9-4b5e-9c24-4a83206852b2" />
+
 
 ## ✨ Features
 
@@ -165,21 +170,6 @@ Monitoring Stack:
 - **Proxmox backend**: Enterprise-grade virtualization platform
 
 
-## 📚 Documentation
-
-- [Hardware Setup](docs/01-hardware-setup.md)
-- [Proxmox Installation](docs/02-proxmox-installation.md)
-- [Pi-hole Deployment](docs/03-pihole-deployment.md)
-- [Portainer Deployment](docs/04-portainer-deployment.md)
-- [N8N Deployment](docs/05-n8n-deployment.md)
-- [Twingate Setup](docs/06-twingate-setup.md)
-- [Health Monitoring Workflow](docs/07-monitoring-workflow.md)
-- [Troubleshooting Guide](docs/troubleshooting.md)
-
-## 🔧 Quick Start
-
-See [workflows/README.md](workflows/README.md) for N8N workflow setup.
-
 ## ⚠️ Security Notice
 
 **This repository contains sanitized configurations.**
@@ -207,9 +197,5 @@ All sensitive data has been replaced with placeholders:
 ## 📖 Lessons Learned
 
 See [docs/lessons-learned.md](docs/lessons-learned.md) for challenges encountered and solutions.
-
-## 📄 License
-
-MIT License - See [LICENSE](LICENSE)
 
 **Note:** This is a living project. Documentation and configurations are continuously updated.
