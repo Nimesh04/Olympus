@@ -176,6 +176,56 @@ Cloud Storage dashboard
 - **Proxmox backend**: Enterprise-grade virtualization platform
 
 
+## 💾 Backup & Disaster Recovery
+
+### Automated Backup System
+- **Frequency:** Daily at 2:00 AM
+- **Method:** Proxmox vzdump (snapshot mode)
+- **Compression:** ZSTD
+- **Retention:** 7 days (rolling)
+- **Storage:** Local Proxmox storage (`/var/lib/vz/dump/`)
+- **Total Size:** 4.6 GB per backup set (~32 GB maximum)
+
+### Backup Coverage
+| Container | Backup Size | Critical Level | RPO |
+|-----------|-------------|----------------|-----|
+| Athena (DNS) | 290 MB | ⭐⭐⭐⭐⭐ | 24h |
+| Hephaestus (Portainer) | 506 MB | ⭐⭐ | 24h |
+| Hermes (N8N) | 881 MB | ⭐⭐⭐⭐ | 24h |
+| Argus (Uptime Kuma) | 637 MB | ⭐⭐⭐⭐ | 24h |
+| Cerberus (Nginx Proxy) | 1.1 GB | ⭐⭐⭐⭐⭐ | 24h |
+| Artemis (Nextcloud) | 1.3 GB | ⭐⭐⭐⭐⭐ | 24h |
+
+### Recovery Metrics
+- **RTO (Recovery Time Objective):** 2 hours target, **2 minutes actual**
+- **RPO (Recovery Point Objective):** 24 hours
+- **Last Tested:** April 11, 2026 (Hephaestus full restore - successful)
+- **Data Integrity:** 100% (verified via test restore)
+
+### Monitoring & Alerting
+- **N8N workflow** runs daily at 8:00 AM
+- **Python-based validation** checks for 6 backup files
+- **Discord alerts** on backup failure
+- **Detection window:** Maximum 6 hours (between backup run and check)
+
+### Disaster Recovery Procedures
+**Full Container Restore:**
+```bash
+# Stop container (if running)
+pct stop <CTID>
+
+# Restore from backup
+pct restore <CTID> /var/lib/vz/dump/vzdump-lxc-<CTID>-<timestamp>.tar.zst
+
+# Start restored container
+pct start <CTID>
+
+# Verify functionality
+pct status <CTID>
+```
+
+**Verified Recovery Time:** 2 minutes (tested with LXC 101)
+
 ## ⚠️ Security Notice
 
 **This repository contains sanitized configurations.**

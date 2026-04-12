@@ -228,3 +228,67 @@ Didn't fix - accepted working state. Could redeploy NPM with --network host for 
 
 ### Takeaway
 Docker bridge vs host networking matters for inter-container communication. Host mode more reliable for proxying to external services.
+
+
+
+---
+
+## Backup & Disaster Recovery Implementation
+
+### Problem
+No backup system in place meant catastrophic data loss risk from hardware failure, accidental deletion, or corruption.
+
+### Investigation
+- Mapped all 6 containers and their criticality levels
+- Calculated storage requirements: 4.6GB per backup set
+- Determined acceptable RTO (2 hours) and RPO (24 hours)
+
+### Root Cause
+Infrastructure without backups is a single point of failure. Every SysAdmin role requires B&DR experience.
+
+### Solution
+Implemented automated Proxmox backup system with:
+- Daily full backups at 2 AM using vzdump
+- ZSTD compression reducing backup size by ~60%
+- 7-day retention (32GB maximum storage usage)
+- Python-based monitoring via N8N (daily 8 AM verification)
+- Discord alerts on backup failure
+
+### Takeaway
+Backups are worthless until proven recoverable. Tested full container restoration achieving 2-minute RTO (60x better than 2-hour target). Automated monitoring ensures backup failures are detected within 6 hours.
+
+---
+
+## Backup Monitoring Challenges
+
+### Problem
+N8N SSH node returned file list instead of count when using standard bash pipes.
+
+### Investigation
+- Direct shell: `ls | wc -l` returned `6` (correct)
+- N8N SSH node: Same command returned file list + `0` (incorrect)
+- Issue: Non-interactive shell behavior in N8N SSH execution
+
+### Root Cause
+N8N's SSH node executes commands in non-interactive mode where pipe operators may not behave as expected. Shell interpretation differs from standard interactive sessions.
+
+### Solution
+Used Python one-liner instead of bash pipes:
+```python
+python3 -c "import glob; print(len(glob.glob('/var/lib/vz/dump/vzdump-lxc-*.tar.zst')))"
+```
+
+### Takeaway
+When automating commands across different execution environments (interactive shell vs SSH vs cron), prefer language-specific solutions (Python, Perl) over bash pipes for predictable behavior. Python's glob module provides consistent results regardless of shell context.
+
+---
+
+## Time Investment
+
+- Backup system design: 30 minutes
+- Proxmox backup configuration: 15 minutes
+- Disaster recovery testing: 10 minutes
+- Monitoring workflow setup: 45 minutes
+- Documentation: 20 minutes
+
+
