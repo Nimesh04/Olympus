@@ -135,6 +135,12 @@ pct start <CTID>
 ### Nextcloud Dashboard
 <img width="1675" height="928" alt="Artemis (Nextcloud)" src="https://github.com/user-attachments/assets/44486203-43f2-4263-b023-e58bf23b81da" />
 
+### Prometheus + Grafana Dashboard
+<img width="1911" height="972" alt="Grafana" src="https://github.com/user-attachments/assets/cc9c4870-b9bd-4db2-b142-4c59862d4b24" />
+Grafana
+<img width="1912" height="966" alt="Prometheus" src="https://github.com/user-attachments/assets/8c2c2371-2df5-48cb-80a3-06da2eddcd08" />
+Prometheus
+
 ## 📊 System Specs
 
 | Component | Detail |
