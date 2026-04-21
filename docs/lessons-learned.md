@@ -291,4 +291,39 @@ When automating commands across different execution environments (interactive sh
 - Monitoring workflow setup: 45 minutes
 - Documentation: 20 minutes
 
+### 🏹 Artemis (LXC 105) - Self-Hosted File Storage
 
+**Lessons learned:**
+- `trusted_domains` must include both proxy domain and direct IP
+- `overwriteprotocol` settings cause login loops across all devices - removed
+- Uptime Kuma monitoring requires SSL ignore enabled for self-signed certs
+---
+
+### ❌ Dionysus (LXC 106) - Removed
+**Attempted stack:** Ollama + Gemma2 + OpenClaw (AI agent)
+ 
+Attempted to deploy a local AI assistant accessible via Discord. Hit multiple
+hard limitations and made the deliberate decision to remove it entirely.
+ 
+**What failed and why:**
+- 16GB RAM fully allocated across 7 containers - no headroom for AI
+- Gemma2 model family does not support tool calling - required by OpenClaw
+- CPU-only inference too slow for practical use (30-60s per response)
+- Gemma4 E2B packaging in Ollama was 7.2GB not the expected 1.3GB edge model
+**The real lesson:** Hardware limits are real. Chasing cool projects that
+don't fit your infrastructure or build real skills is project creep.
+Removed cleanly and refocused on core sysadmin skills.
+ 
+**Minimum viable hardware for this properly:**
+- 32GB RAM
+- Dedicated GPU (RTX 3060 12GB minimum)
+- Separate AI server not shared with production services
+---
+
+### 🔆 Apollo (LXC 106) - Monitoring Stack
+
+**Lessons learned:**
+- Typo in service file caused wrong port (9000 vs 9090) - caught via journalctl
+- Prometheus does not support `systemctl reload` - requires restart or HTTP API with `--web.enable-lifecycle` flag
+- Always validate configs with `promtool check config` before restarting
+- `sources.list.d` not `source.list.d` - tab completion prevents this
