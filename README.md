@@ -123,7 +123,17 @@ pct start <CTID>
 
 ## Specs
 
+<<<<<<< HEAD
 ### homelab (X1 Carbon)
+=======
+### Prometheus + Grafana Dashboard
+<img width="1911" height="972" alt="Grafana" src="https://github.com/user-attachments/assets/cc9c4870-b9bd-4db2-b142-4c59862d4b24" />
+Grafana
+<img width="1912" height="966" alt="Prometheus" src="https://github.com/user-attachments/assets/8c2c2371-2df5-48cb-80a3-06da2eddcd08" />
+Prometheus
+
+## 📊 System Specs
+>>>>>>> 633f7f4a46ef684409f601b5668c06fd54cb2ad5
 
 | Component | Detail |
 |-----------|--------|
@@ -147,8 +157,12 @@ pct start <CTID>
 
 ## Security notice
 
+<<<<<<< HEAD
 All credentials, webhook URLs, and real IP ranges have been replaced with placeholders. Don't commit real secrets.
 
 ## Lessons learned
 
 See [docs/lessons-learned.md](docs/lessons-learned.md) for things that broke and why.
+=======
+See [docs/lessons-learned.md](docs/lessons-learned.md) for challenges and solutions encountered during deployment.
+>>>>>>> 633f7f4a46ef684409f601b5668c06fd54cb2ad5
