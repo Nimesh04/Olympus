@@ -56,7 +56,8 @@ OU structure mirrors a real company layout with IT, Finance, and HR departments.
 
 ## Architecture
 
-![Cluster Olympus Architecture](./docs/architecture.svg)
+<img width="842" height="642" alt="Architecture" src="https://github.com/user-attachments/assets/79a245b0-9653-4042-8dd4-18d8f36eb33e" />
+
 
 Traffic flows from the home network into the homelab node. Cerberus handles SSL termination and reverse proxying for all internal services. Athena resolves `*.olympus.lab` hostnames. Remote access runs through Twingate — no open ports, no port forwarding.
 
@@ -123,7 +124,6 @@ pct start <CTID>
 
 ## Specs
 
-<<<<<<< HEAD
 ### homelab (X1 Carbon)
 =======
 ### Prometheus + Grafana Dashboard
@@ -133,7 +133,8 @@ Grafana
 Prometheus
 
 ## 📊 System Specs
->>>>>>> 633f7f4a46ef684409f601b5668c06fd54cb2ad5
+
+### Homelab(X1 Carbon)
 
 | Component | Detail |
 |-----------|--------|
@@ -157,12 +158,7 @@ Prometheus
 
 ## Security notice
 
-<<<<<<< HEAD
 All credentials, webhook URLs, and real IP ranges have been replaced with placeholders. Don't commit real secrets.
 
 ## Lessons learned
-
-See [docs/lessons-learned.md](docs/lessons-learned.md) for things that broke and why.
-=======
 See [docs/lessons-learned.md](docs/lessons-learned.md) for challenges and solutions encountered during deployment.
->>>>>>> 633f7f4a46ef684409f601b5668c06fd54cb2ad5
